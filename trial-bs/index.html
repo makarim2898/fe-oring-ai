@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <!-- ini local bootstrap css -->
+    <link rel="stylesheet" href="../bootstrapv5/css/bootstrap.css">
+    <link rel="stylesheet" href="../bootstrapv5/css/bootstrap.rtl.css">
+    <link rel="stylesheet" href="../bootstrapv5/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- ini navbar -->
+    <div class="collapse" id="navbarToggleExternalContent">
+        <div class="bg-dark p-4">
+          <h5 class="text-white h4">Collapsed content</h5>
+          <span class="text-muted">Toggleable via the navbar brand.</span>
+        </div>
+      </div>
+      <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </nav>
+    <!-- ini akhir navbar -->
+    <button type="button" class="btn btn-primary">Primary</button>
+
+        <!-- ini local boot strap -->
+    <script src="../bootstrapv5/js/bootstrap.bundle.js"></script>
+    <script src="../bootstrapv5/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
+</body>
+</html>

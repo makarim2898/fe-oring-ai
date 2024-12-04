@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspection Data Chart</title>
+    <link rel="stylesheet" href="../bootstrapv5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container my-4">
+        <h1 class="text-center">Inspection Data Comparison</h1>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="filter-start-date">Start Date:</label>
+                <input type="date" id="filter-start-date" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label for="filter-end-date">End Date:</label>
+                <input type="date" id="filter-end-date" class="form-control">
+            </div>
+        </div>
+        <canvas id="inspectionChart" width="400" height="200"></canvas>
+    </div>
+
+    <script src="chart.min.js"></script> <!-- Ganti dengan path lokal Chart.js -->
+    <script src="script.js"></script>
+</body>
+</html>

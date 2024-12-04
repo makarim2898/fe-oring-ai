@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page | Camera AI</title>
+    
+    <!-- ini local bootstrap css -->
+    <link rel="stylesheet" href="../bootstrapv5/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-danger">
+    <div class="container-fluid ">
+        <a class="navbar-brand" href="#">
+            <img src="../resource/logo-tmmin.png" alt="" height="40" class="d-inline-block align-text-middle">
+            </a>
+        <span class="navbar-text text-light fw-bolder fs-5">
+            AI CAMERA INSPECTION
+            </span>
+        <ul class="nav px-5 mx-5">
+           <li class="nav-item dropdown">
+                <a class="nav-link  text-light dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Menu</a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="../Home-page/Homepage.html">Home</a></li>
+                    <li><a class="dropdown-item" href="../display-page/display-page.html">Display Page</a></li>
+                    <li><a class="dropdown-item" href="../collect-data-sample/dollect-data-sample.html">Collect data sample</a></li>
+                    <li><a class="dropdown-item" href="../adjust-camera/settings-camera.html">Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="../display-page-outline/display-page-outline.html">Show Up</a></li>
+                    <li><a class="dropdown-item" href="./information-page.html">Information</a></li>
+                </ul>
+            </li>
+        </ul>
+        
+    </div>
+  </nav>
+    <div class="d-flex justify-content-center row">
+        <div class="row">
+             <h1 class="text-center">HISTORY INSPECTION</h1>
+        </div>
+        <!-- FILTER BAR -->
+        <div class="row">
+            <div class="col-md-2">         
+              <label for="filter-result">Filter by Result:</label>         
+              <select id="filter-result" class="form-control">         
+                <option value="">All</option>         
+                <option value="GOOD">GOOD</option>         
+                <option value="NG">NG</option>        
+              </select>         
+            </div>
+          
+            <div class="col-md-2">
+                <label for="filter-start-date">Start Date:</label>
+                <input type="date" id="filter-start-date" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label for="filter-end-date">End Date:</label>
+                <input type="date" id="filter-end-date" class="form-control">
+            </div>
+          
+            <div class="col-md-2">          
+              <label for="filter-time">Filter by Time:</label>         
+              <select id="filter-time" class="form-control">         
+                <option value="">All</option>          
+                <option value="DAY">DAY</option>         
+                <option value="NIGHT">NIGHT</option>         
+              </select>       
+            </div>
+            <div class="col-md-2">
+                <label for="sort-order">Sort Order:</label>
+                <select id="sort-order" class="form-control">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="items-per-page">Items per Page:</label>
+                <select id="items-per-page" class="form-control">
+                    <option value="10">10</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                </select>
+            </div>
+          </div>
+        <div class="d-flex justify-content-center row"></div>
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-striped ">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" class="text-center">No</th>
+                                <th scope="col" class="text-center">Inspection ID</th>
+                                <th scope="col" class="text-center">Inspection Date</th>
+                                <th scope="col" class="text-center">Inspection Time</th>
+                                <th scope="col" class="text-center">Inspection Result</th>
+                                <th scope="col" class="text-center">Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body">
+                            <!-- Data dari server akan ditampilkan di sini -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="pagination" class="card-body my-3">
+            <!-- Pagination buttons will be inserted here -->
+        </div>
+  </div>
+
+
+
+    <script>
+        const filterResult = document.getElementById('filter-result');
+        const filterStartDate = document.getElementById('filter-start-date');
+        const filterEndDate = document.getElementById('filter-end-date');
+        const filterTime = document.getElementById('filter-time');
+        const tableBody = document.getElementById('data-table-body');
+        const sortOrder = document.getElementById('sort-order');
+
+        let data = null
+        let currentPage = 1;
+        let itemsPerPage = 10;
+
+        async function getData() {
+            try {
+                console.log('Meminta data dari server');
+                
+                let response = await fetch('http://127.0.0.1:5000/info/get-history', {
+                    method: 'GET' // Menggunakan metode GET
+                });
+        
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+        
+                data = await response.json(); // Mengurai respons JSON dari server
+                console.log('Respons dari server:', data);
+                
+                // Manipulasi DOM atau pemrosesan data lebih lanjut di sini
+                // Misalnya, kamu bisa menampilkan data di tabel HTML
+                displayData(data);
+        
+            } catch (error) {
+                console.error('Terjadi kesalahan:', error);
+            }
+        }
+
+        function filterData(data) {
+            const startDateValue = filterStartDate.value ? parseInt(filterStartDate.value.replace(/-/g, '')) : null;
+            const endDateValue = filterEndDate.value ? parseInt(filterEndDate.value.replace(/-/g, '')) : null;
+
+            const filteredData = data.filter(item => {
+                const resultMatch = filterResult.value === '' || item.inspection_result === filterResult.value;
+                const dateMatch = (!startDateValue || item.inspection_date >= startDateValue) &&
+                                (!endDateValue || item.inspection_date <= endDateValue);
+                const timeMatch = filterTime.value === '' || (filterTime.value === 'DAY' && item.inspection_time > 70000 && item.inspection_time < 200000) || (filterTime.value === 'NIGHT' && (item.inspection_time <= 70000 || item.inspection_time >= 200000));
+                return resultMatch && dateMatch && timeMatch;
+            });
+
+            displayData(filteredData);
+        }
+
+        function displayData(data) {
+            const sortOrderValue = sortOrder.value;
+
+            if (sortOrderValue === 'asc') {
+                data.sort((a, b) => a.inspection_id - b.inspection_id);
+            } else {
+                data.sort((a, b) => b.inspection_id - a.inspection_id);
+            }
+
+            const totalItems = data.length;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const paginatedData = data.slice(startIndex, endIndex);
+
+            let containerBody = '';
+            paginatedData.forEach((item, index) => {
+                containerBody += `
+                    <tr>
+                        <td class="text-center">${startIndex + index + 1}</td>
+                        <td class="text-center">${item.inspection_id}</td>
+                        <td class="text-center">${item.inspection_date}</td>
+                        <td class="text-center">${item.inspection_time}</td>
+                        <td class="text-center">${item.inspection_result}</td>
+                        <td class="text-center"> 
+                            <a href="file:///${item.image_path}" target="blank">
+                                <img src="file:///${item.image_path}" alt="Image Inspection" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Open image in new tab">
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = containerBody;
+            updatePagination(totalItems);
+        }
+
+        function updatePagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            let paginationHTML = '';
+
+            // Tombol "First"
+            if (currentPage > 1) {
+                paginationHTML += `<button class="btn btn-secondary mx-1" onclick="changePage(1)">First</button>`;
+            }
+
+            // Tombol "Prev"
+            if (currentPage > 1) {
+                paginationHTML += `<button class="btn btn-secondary mx-1" onclick="changePage(${currentPage - 1})">Prev</button>`;
+            }
+
+            // Menentukan rentang halaman yang akan ditampilkan
+            const maxButtons = 10;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = startPage + maxButtons - 1;
+
+            if (endPage > totalPages) {
+                endPage = totalPages;
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            // Tambahkan tombol halaman
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="btn btn-secondary mx-1 ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+
+            // Tombol "Next"
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="btn btn-secondary mx-1" onclick="changePage(${currentPage + 1})">Next</button>`;
+            }
+
+            // Tombol "Last"
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="btn btn-secondary mx-1" onclick="changePage(${totalPages})">Last</button>`;
+            }
+
+            document.getElementById('pagination').innerHTML = paginationHTML;
+        }
+        function changePage(pageNumber) {
+            currentPage = pageNumber;
+            filterData(data);
+        }
+        
+            // function displayData(data) {
+            //     const tableBody = document.getElementById('data-table-body');
+            //     const sortOrder = document.getElementById('sort-order').value;
+
+            //     if (sortOrder === 'asc') {
+            //         data.sort((a, b) => a.inspection_id - b.inspection_id);
+            //     } else {
+            //         data.sort((a, b) => b.inspection_id - a.inspection_id);
+            //     }
+
+            //     let containerBody = '';
+            //     data.forEach((item, index) => {
+            //         containerBody += `
+            //             <tr>
+            //                 <td class="text-center">${index + 1}</td>
+            //                 <td class="text-center">${item.inspection_id}</td>
+            //                 <td class="text-center">${item.inspection_date}</td>
+            //                 <td class="text-center">${item.inspection_time}</td>
+            //                 <td class="text-center">${item.inspection_result}</td>
+            //                 <td class="text-center"> 
+            //                     <a href="file:///${item.image_path}" target="blank">
+            //                         <img src="file:///${item.image_path}" alt="Image Inspection" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Open image in new tab">
+            //                     </a>
+            //                 </td>
+            //             </tr>
+            //         `;
+            //     });
+
+            //     tableBody.innerHTML = containerBody;
+            // }
+        // function displayData(data) {
+        //     const tableBody = document.getElementById('data-table-body');
+        //     data.sort((a, b) => b.inspection_id - a.inspection_id);
+        //     containerBody=''
+
+        //     for (key in data){
+        //         containerBody += `
+        //             <tr>
+        //                 <td class="text-center">${data[key].inspection_id}</td>
+        //                 <td class="text-center">${data[key].inspection_date}</td>
+        //                 <td class="text-center">${data[key].inspection_time}</td>
+        //                 <td class="text-center">${data[key].inspection_result}</td>
+        //                 <td class="text-center"> 
+        //                     <a href="file:///${data[key].image_path}" target="blank">
+        //                         <img src="file:///${data[key].image_path}" alt="Image Inspection" style="max-width: 100px;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Open image in new tab">
+        //                     </a>
+        //                 </td>
+        //             </tr>
+        //         `
+        //     }
+
+        //     tableBody.innerHTML = containerBody;
+
+        // }
+        document.getElementById('items-per-page').addEventListener('change', function() {
+            itemsPerPage = parseInt(this.value);
+            currentPage = 1; // Reset to first page
+            filterData(data);
+        });
+        filterResult.addEventListener('change', () => filterData(data));
+        filterStartDate.addEventListener('change', () => filterData(data));
+        filterEndDate.addEventListener('change', () => filterData(data));
+        filterTime.addEventListener('change', () => filterData(data));
+        sortOrder.addEventListener('change', () => filterData(data));
+        
+        getData();
+    </script>
+    <!-- ini local boot strap -->
+    <script src="../bootstrapv5/js/bootstrap.bundle.min.js"></script>
+    <!-- ini adalah template poover -->
+    <script>
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Page | Camera AI CRANK</title>
+    
+    <!-- ini local bootstrap css -->
+    <link rel="stylesheet" href="../bootstrapv5/css/bootstrap.min.css">
+    <style>
+        
+      input[type="range"]#setting_focus::-webkit-slider-thumb,
+      input[type="range"]#setting_zoom::-webkit-slider-thumb {
+          background-color: black;
+          -webkit-appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          cursor: pointer;
+      }
+  
+      input[type="range"]#setting_focus::-moz-range-thumb,
+      input[type="range"]#setting_zoom::-moz-range-thumb {
+          background-color: black;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          cursor: pointer;
+      }
+  
+      input[type="range"]#setting_focus::-ms-thumb,
+      input[type="range"]#setting_zoom::-ms-thumb {
+          background-color: black;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          cursor: pointer;
+      }
+  
+      </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-danger">
+    <div class="container-fluid ">
+        <a class="navbar-brand" href="#">
+            <img src="../resource/logo-tmmin.png" alt="" height="40" class="d-inline-block align-text-middle">
+            </a>
+        <span class="navbar-text text-light fw-bolder fs-5">
+            AI CAMERA INSPECTION
+            </span>
+        <ul class="nav px-5 mx-5">
+           <li class="nav-item dropdown">
+                <a class="nav-link  text-light dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Menu</a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="../Home-page/Homepage.html">Home</a></li>
+                    <li><a class="dropdown-item" href="../display-page/display-page.html">Display Page</a></li>
+                    <li><a class="dropdown-item" href="../collect-data-sample/dollect-data-sample.html">Collect data sample</a></li>
+                    <li><a class="dropdown-item" href="./settings-camera.html">Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="../display-page-outline/display-page-outline.html">Show Up</a></li>
+                    <li><a class="dropdown-item" href="../information-page/information-page.html">Information</a></li>
+                </ul>
+            </li>
+        </ul>
+        
+    </div>
+  </nav>
+    <div class="d-flex justify-content-center row my-1 py-1">
+        <div class="row ">
+          <h1>Camera parameter settings</h1>
+            <div class="col col-6 px-2">
+                <!-- for streaming video -->
+                <div class="ratio ratio-16x9 border border-secondary border border-4">
+                    <img src="http://127.0.0.1:5000/settings-show-video" alt="Camera 0" width="100%" id="video-1">
+                  </div>
+                 <p class="text-center">Streaming video from camera</p>
+                 <button class="btn btn-dark" type="button" id="refresh-camera" onclick="refreshImage()">Refresh Camera</button>
+            </div>
+            <div class="col col-6" >
+                <div class="row mb-3 mt-3">
+                    <label for="camera-index" class="mb-1">Camera index to settings</label>
+                    <div class="input-group mb-3" >
+                        <input id="cam_id" type="text" inputmode="numeric" class="form-control" placeholder="Your camera index to settings" aria-label="camera-index" aria-describedby="button-addon2">
+                        <button class="btn btn-dark" type="button" id="buton_select_id" onclick="changeCameraIndex()">mulai setting</button>
+                      </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="setting_focus" class="form-label">Focus Settings</label>
+                    <input type="range" class="form-range px-2" min="0" step ="5" max="255" id="setting_focus">
+                  </div>
+                <div class="row mb-3">
+                    <label for="setting_zoom" class="form-label">Zoom Settings</label>
+                    <input type="range" class="form-range px-2" min="100" step ="1" max="400" id="setting_zoom" >
+                  </div>
+                <div class="row mb-3">
+                    <label for="" class="mb-1">Save Image as</label><br>
+                    <div class="input-group mb-3">
+                      <input id="img_nm" type="text" class="form-control" placeholder="image name template" aria-describedby="button-addon2">
+                      <button class="btn btn-dark" type="button" id="save_image" onclick="saveImages()">Save Images</button>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="d-grid gap-2 d-md-block">
+                        <button class="btn btn-dark my-2" type="button" id="prev_cam_idx" onclick="switchCameraIndex(0)">prev cam</button>
+                        <button class="btn btn-dark my-2" type="button" id="save_settings" onclick="saveSettings()">Save Settings</button>
+                        <button class="btn btn-dark my-2" type="button" id="reset_settings" onclick="resetSettings()">Reset Settings</button>
+                        <button class="btn btn-dark my-2" type="button" id="next_cam_idx" onclick="switchCameraIndex(1)">next cam</button>
+                    </div>
+                </div>
+                <div class="row mb-3 mt-3">
+                  <label class="mb-1">Index camera yang digunakan</label>
+                  <div class="input-group mb-3" >
+                      <input id="cam-idx-cfg" type="text" inputmode="numeric" class="form-control" placeholder="kamera index yang di pakai" aria-label="camera-index-used" aria-describedby="button-addon2">
+                      <button class="btn btn-dark" type="button" id="buton_select_id" onclick="cameraUpdateindexConfig()">apply Settings</button>
+                    </div>
+              </div>
+        </div>
+
+    </div>
+
+<!-- ini adalah script untuk mengatur event -->
+    <script>
+        const range_focus = document.getElementById('setting_focus');
+        const range_zoom = document.getElementById('setting_zoom');
+        let camera_live = 0
+        //<!-- fungsi untuk mengatur fokus kamera -->
+        function changeFocus(event) {
+            const value = event.target.value;
+            console.log('Nilai range:', value);
+            fetch(`http://127.0.0.1:5000/settings-focus?focus=${encodeURIComponent(value)}`, {
+              method: 'GET', // atau 'POST' jika server mengharapkan request POST
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json(); // atau response.text() jika respons bukan JSON
+            })
+            .then(data => {
+              console.log('Respons dari server:', data);
+              // Panggil fungsi yang diinginkan di sini
+              // misalnya: updateCameraFocus(value);
+            })
+            .catch(error => {
+              console.error('Terjadi kesalahan:', error);
+            });
+            // Panggil fungsi yang diinginkan di sini
+            // misalnya: updateCameraFocus(value);
+          }
+
+          //<!-- fungsi untuk mengubah zoom -->
+          function changeZoom(event) {
+            const value = event.target.value;
+            console.log('Nilai range:', value);
+            fetch(`http://127.0.0.1:5000/settings-zoom?zoom=${encodeURIComponent(value)}`, {
+              method: 'GET', // atau 'POST' jika server mengharapkan request POST
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json(); // atau response.text() jika respons bukan JSON
+            })
+            .then(data => {
+              console.log('Respons dari server:', data);
+              // Panggil fungsi yang diinginkan di sini
+              // misalnya: updateCameraFocus(value);
+            })
+            .catch(error => {
+              console.error('Terjadi kesalahan:', error);
+            });
+            // Panggil fungsi yang diinginkan di sini
+            // misalnya: updateCameraFocus(value);
+          }
+
+        //<!-- fungsi untuk pilih kamera -->
+        async function changeCameraIndex() {
+          try {
+              let value = Number(document.getElementById('cam_id').value);
+              console.log('index kamera target : ', value);
+      
+              let response = await fetch(`http://127.0.0.1:5000/settings-camera-index?cam_id=${encodeURIComponent(value)}`, {
+                  method: 'GET' // atau 'POST' jika server mengharapkan request POST
+              });
+      
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+      
+              let data = await response.json(); // atau response.text() jika respons bukan JSON
+              console.log('Respons dari server:', data);
+              getSettings(data)
+              refreshImage()
+              // Panggil fungsi yang diinginkan di sini
+              // misalnya: updateCameraFocus(value);
+          } catch (error) {
+              console.error('Terjadi kesalahan:', error);
+          }
+        }
+
+      async function switchCameraIndex(value) {
+        try {
+            let Value = value
+            console.log('index kamera target : ', value);
+    
+            let response = await fetch(`http://127.0.0.1:5000/settings/switch-camera-index?direction=${encodeURIComponent(value)}`, {
+                method: 'GET' // atau 'POST' jika server mengharapkan request POST
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            let data = await response.json(); // atau response.text() jika respons bukan JSON
+            console.log('Respons dari server:', data);
+            getSettings(data)
+            refreshImage()
+            // Panggil fungsi yang diinginkan di sini
+            // misalnya: updateCameraFocus(value);
+        } catch (error) {
+            console.error('Terjadi kesalahan:', error);
+        }
+    }
+      function refreshImage() {
+        let imgElement = document.getElementById('video-1');
+        let currentSrc = imgElement.src;
+        
+        // Tambahkan parameter query string untuk memastikan gambar diperbarui
+        imgElement.src = currentSrc.split('?')[0] + '?t=' + new Date().getTime();
+        console.log(imgElement.src);
+        console.log('success refresh video')
+    }
+
+      async function saveSettings() {
+        try {
+            console.log('Saving settings')
+    
+            let response = await fetch(`http://127.0.0.1:5000/settings-save`, {
+                method: 'GET' // atau 'POST' jika server mengharapkan request POST
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            let data = await response.json(); // atau response.text() jika respons bukan JSON
+            console.log('Respons dari server:', data);
+            alert('data saved', data);
+            // Panggil fungsi yang diinginkan di sini
+            // misalnya: updateCameraFocus(value);
+        } catch (error) {
+            console.error('Terjadi kesalahan:', error);
+        }
+    }
+
+    async function resetSettings() {
+      try {
+          console.log('Saving settings')
+  
+          let response = await fetch(`http://127.0.0.1:5000/settings-reset`, {
+              method: 'GET' // atau 'POST' jika server mengharapkan request POST
+          });
+  
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+  
+          let data = await response.json(); // atau response.text() jika respons bukan JSON
+          console.log('Respons dari server:', data);
+          let focus_value = data['new_params']['focus level']
+          let zoom_value = data['new_params']['zoom level']
+          document.getElementById('setting_focus').value = focus_value;
+            document.getElementById('setting_zoom').value = zoom_value;
+          // Panggil fungsi yang diinginkan di sini
+          // misalnya: updateCameraFocus(value);
+      } catch (error) {
+          console.error('Terjadi kesalahan:', error);
+      }
+  }
+
+  async function saveImages() {
+    try {
+        console.log('Saving settings')
+        let name = document.getElementById('img_nm').value
+        let response = await fetch(`http://127.0.0.1:5000/settings-save-images?name=${name}`, {
+            method: 'GET' // atau 'POST' jika server mengharapkan request POST
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        let data = await response.json(); // atau response.text() jika respons bukan JSON
+        console.log('Respons dari server:', data);
+        // Panggil fungsi yang diinginkan di sini
+        // misalnya: updateCameraFocus(value);
+    } catch (error) {
+        console.error('Terjadi kesalahan:', error);
+    }
+}
+
+      async function getSettings(kamera_index) {
+        try {
+            console.log('Saving settings')
+
+            let response = await fetch(`http://127.0.0.1:5000/settings-get`, {
+                method: 'GET' // atau 'POST' jika server mengharapkan request POST
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            let data = await response.json(); // atau response.text() jika respons bukan JSON
+            console.log('Respons dari server:', data);
+            let banyak_aray = data.length
+            let parameter_camera = data.find(item => item.id_camera === kamera_index);
+            console.log('ini parameter kamera : ', parameter_camera);
+            document.getElementById('setting_focus').value = parameter_camera.focus_value;
+            document.getElementById('setting_zoom').value = parameter_camera.zoom_value;
+            document.getElementById('cam_id').value = parameter_camera.id_camera;
+
+            // Panggil fungsi yang diinginkan di sini
+            // misalnya: updateCameraFocus(value);
+        } catch (error) {
+            console.error('Terjadi kesalahan:', error);
+        }
+      }
+
+      async function getCameraIndexSettings(){
+        try{
+
+          console.log("ini get setting camera index")
+          let response = await fetch(`http://127.0.0.1:5000/settings-get-camera-cfg`, {
+            method: 'GET' // atau 'POST' jika server mengharapkan request POST
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          let data = await response.json(); // atau response.text() jika respons bukan JSON
+          data = data[0]
+          console.log('Respons dari server:', data);
+          document.getElementById('cam-idx-cfg').value = data.camera_idx;
+
+        }catch(error){
+          console.error('Terjadi kesalahan:', error);
+        }
+      }
+
+      async function cameraUpdateindexConfig(){
+        try{
+          console.log("ini update camera index")
+          let value = document.getElementById('cam-idx-cfg').value
+
+          let response = await fetch(`http://127.0.0.1:5000/settings-update-camera-cfg?camera_idx=${value}`, {
+            method: 'GET' // atau 'POST' jika server mengharapkan request POST
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          let data = await response.json(); // atau response.text() jika respons bukan JSON
+          console.log(`berhasil mengubah index camera menjadi ${data[0].camera_idx}`)
+          camera_live = data[0].camera_idx
+          getSettings(camera_live)
+
+        }catch(error){
+          console.error('Terjadi kesalahan:', error);
+        }
+      }
+
+      getCameraIndexSettings()
+      //save settings camera
+      
+        range_focus.addEventListener('input', changeFocus);
+        range_zoom.addEventListener('input', changeZoom);
+    </script>
+
+    <!-- ini local boot strap -->
+    <script src="../bootstrapv5/js/bootstrap.bundle.min.js"></script>
+    <!-- ini adalah template poover -->
+    <script>
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
+</body>
+</html>

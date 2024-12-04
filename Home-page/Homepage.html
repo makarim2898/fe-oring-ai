@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page | Camera AI</title>
+    
+    <!-- ini local bootstrap css -->
+    <link rel="stylesheet" href="../bootstrapv5/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-danger">
+    <div class="container-fluid ">
+        <a class="navbar-brand" href="#">
+            <img src="../resource/logo-tmmin.png" alt="" height="40" class="d-inline-block align-text-middle">
+            </a>
+        <span class="navbar-text text-light fw-bolder fs-5">
+            AI CAMERA POKAYOKE THRUST BEARING SUBLINE
+            </span>
+        <ul class="nav px-5 mx-5">
+          <li class="nav-item dropdown">
+                <a class="nav-link  text-light dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Menu</a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="./Homepage.html">Home</a></li>
+                    <li><a class="dropdown-item" href="../display-page/display-page.html">Display Page</a></li>
+                    <li><a class="dropdown-item" href="../collect-data-sample/dollect-data-sample.html">Collect data sample</a></li>
+                    <li><a class="dropdown-item" href="../adjust-camera/settings-camera.html">Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="../display-page-outline/display-page-outline.html">Show Up</a></li>
+                    <li><a class="dropdown-item" href="../information-page/information-page.html">Information</a></li>
+                </ul>
+            </li>
+        </ul>
+        
+    </div>
+  </nav>
+  <div class="d-flex justify-content-center row px-2">
+    <!-- baris atas untuk tampilan live view dan last jugement -->
+    <div class="container my-3 pt-3 px-3">
+        <div class="row">
+            <div class="col px-2">
+                <div class="card mb-3">
+                    <img src="http://127.0.0.1:5000/bearing/show-video" class="card-img-top" alt="Last Judgement" width="100%" id="img-jugement">
+                    <div class="card-body">
+                      <h5 class="card-title">Live detections</h5>
+                    </div>
+                  </div>
+            </div> 
+            <div class="col px-2">
+                <div class="card mb-3">
+                    <img src="http://127.0.0.1:5000/bearing/last_detections" class="card-img-top" alt="Last Judgement" width="100%" id="img-lst-jugement">
+                    <div class="card-body">
+                      <h5 class="card-title">Last Judgement</h5>
+                    </div>
+                  </div>
+            </div>    
+        </div>
+    </div>
+    
+    <!-- baris bawah untuk tampilan detail dari last detections -->
+    <div class="container justify-content-center">
+      <div class="row">
+        <div class="col-6">
+          <div class="card h-100">
+            <div class="card-body d-flex justify-content-center align-item-center bg-danger" 
+                  style="position: relative; height: 100%;"
+                  id="bg-last-judgement-status">
+              <h1 class="display-1 fw-bold text-dark" 
+                  style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16rem;"
+                  id="last-judgement-status">
+                NG
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card">
+            <div class="card-body">
+              <table class="table table-striped ">
+                <thead class="table-dark">
+                  <tr>
+                    <th scope="col" class="text-center">No</th>
+                    <th scope="col" class="text-center">Parameter Name</th>
+                    <th scope="col" class="text-center">Parameter Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="text-center">
+                    <th scope="row">1</th>
+                    <td>Total Judgement</td>
+                    <td id="qty-total">Not counting yet</td>
+                  </tr>
+                  <tr class="text-center">
+                    <th scope="row">2</th>
+                    <td>Sesion Judgement</td>
+                    <td id="qty-sesion">not counting yet</td>
+                  </tr>
+                  <tr id="row-start-trg" class="text-center">
+                    <th scope="row">3</th>
+                    <td>Start Triggers</td>
+                    <td id="dsp-start-trg">OFF</td>
+                  </tr>
+                  <tr id="row-rst-trg" class="text-center">
+                    <th scope="row">4</th>
+                    <td>Reset Triggers</td>
+                    <td id="dsp-rst-trg">OFF</td>
+                  </tr>
+                  <tr id="row-last-detect" class="text-center">
+                    <th scope="row">5</th>
+                    <td>Last detection</td>
+                    <td id="last_detect">Null</td>
+                  </tr>
+                  <tr id="arduino-connect" class="text-center">
+                    <th scope="row">6</th>
+                    <td>Arduino connection</td>
+                    <td id="ardu-status">Null</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- own script -->
+    <script>
+        let alert_popup = false
+
+        async function getData() {
+            try {
+                console.log('Meminta data dari server')
+    
+                let response = await fetch(`http://127.0.0.1:5000/bearing/get-data`, {
+                    method: 'GET' // atau 'POST' jika server mengharapkan request POST
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+    
+                let data = await response.json(); // atau response.text() jika respons bukan JSON
+                console.log('Respons dari server:', data);
+                document.getElementById('qty-total').textContent = data['total_judges']
+                document.getElementById('qty-sesion').textContent = data['sesion_judges']
+
+                // ubah baris start triggers
+                if (data['trigger_start'] == true){
+                  document.getElementById('dsp-start-trg').textContent = 'ON'
+                  document.getElementById('row-start-trg').classList.remove('table-danger')
+                  document.getElementById('row-start-trg').classList.add('table-success')
+                } else {
+                  document.getElementById('dsp-start-trg').textContent = 'OFF'
+                  document.getElementById('row-start-trg').classList.remove('table-success')
+                  document.getElementById('row-start-trg').classList.add('table-danger')
+                }
+
+                //ubah baris reset triggers
+                if (data['trigger_reset'] == true){
+                  document.getElementById('row-rst-trg').classList.remove('table-danger')
+                  document.getElementById('row-rst-trg').classList.add('table-success')
+                  document.getElementById('dsp-rst-trg').textContent = 'ON'
+                }else{
+                  document.getElementById('dsp-rst-trg').textContent = 'OFF'
+                  document.getElementById('row-rst-trg').classList.remove('table-success')
+                  document.getElementById('row-rst-trg').classList.add('table-danger')
+                }
+
+                // ubah border last detect
+                if (data['last_judgement'] == true){
+                  document.getElementById('img-lst-jugement').style.border = '4px solid green'
+                  document.getElementById('last_detect').textContent = 'OK'
+                  document.getElementById('last-judgement-status').innerText = 'OK'
+                  document.getElementById('bg-last-judgement-status').classList.remove('bg-danger')
+                  document.getElementById('bg-last-judgement-status').classList.add('bg-success')
+                  document.getElementById('row-last-detect').classList.remove('table-danger')
+                  document.getElementById('row-last-detect').classList.add('table-success')
+                } else{
+                  document.getElementById('img-lst-jugement').style.border = '4px solid red'
+                  document.getElementById('last_detect').textContent = 'NG'
+                  document.getElementById('last-judgement-status').innerText = 'NG'
+                  document.getElementById('bg-last-judgement-status').classList.remove('bg-success')
+                  document.getElementById('bg-last-judgement-status').classList.add('bg-danger')
+                  document.getElementById('row-last-detect').classList.remove('table-success')
+                  document.getElementById('row-last-detect').classList.add('table-danger')
+
+                }
+
+                
+                if(data['arduino_connected'] == true){
+                  document.getElementById('ardu-status').textContent = 'Connected'
+                  document.getElementById('arduino-connect').classList.remove('table-danger')
+                  document.getElementById('arduino-connect').classList.add('table-success')
+                  alert_popup = false
+                } else{
+                  document.getElementById('ardu-status').textContent = 'Disconnected (please check arduino connection)'
+                  document.getElementById('arduino-connect').classList.remove('table-success')
+                  document.getElementById('arduino-connect').classList.add('table-danger')
+                  if(!alert_popup){
+                    // myModal.show()
+                    alert(`connect arduino nya dulu baru bisa lanjut proses \n`)
+                    alert_popup = true;
+                     // Mengatur waktu tunggu selama 10 detik
+                    setTimeout(function() {
+                        // Memeriksa apakah alert masih aktif (tidak ada cara langsung untuk memeriksa ini)
+                        if (alert_popup) {
+                            // Reload halaman jika alert belum di-dismiss
+                            location.reload();
+                        }
+                    }, 10000); // 10 detik
+                  }
+                }
+
+                console.log(data['last_judgement'])
+                // Panggil fungsi yang diinginkan di sini
+            } catch (error) {
+                console.error('Terjadi kesalahan:', error);
+            }
+          }
+        
+        setInterval(getData, 500);
+    </script>
+
+    <!-- ini local boot strap -->
+    <script src="../bootstrapv5/js/bootstrap.bundle.min.js"></script>
+    <!-- ini adalah template poover -->
+    <script>
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
+</body>
+</html>
