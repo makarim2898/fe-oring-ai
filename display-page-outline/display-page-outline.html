@@ -43,13 +43,21 @@
         
     </div>
   </nav>
-  <div class="d-flex justify-content-center row my-1 py-1">
+  <div class="container-fluid row my-1 py-2">
     <!-- baris atas untuk tampilan live view dal last jugement -->
      <div class="row">
-      <div class="col-8 container justify-content-center">
-        <img src="http://127.0.0.1:5000/outline/show-video" alt="Last Judgement" class="w-100 my-1" id="img-jugement">
+      <div class="col-5">
+        <div class="row">
+          <div class="container justify-content-center my-3">
+            <div class="card">
+              <div class="card-body">
+                <img src="http://127.0.0.1:5000/outline/show-video" alt="Last Judgement" class="w-100" id="img-jugement">
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="col">
+      <div class="col-5">
         <div class="row">
           <div class="container justify-content-center my-3">
             <div class="card">
@@ -58,53 +66,56 @@
               </div>
             </div>
           </div>
-          <div class="container justify-content-center my-3">
-            <div class="card">
-              <div class="card-body">
-                <table class="table table-striped ">
-                  <thead class="table-dark">
-                    <tr>
-                      <th scope="col" class="text-center">No</th>
-                      <th scope="col" class="text-center">Parameter Name</th>
-                      <th scope="col" class="text-center">Parameter Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="text-center">
-                      <th scope="row">1</th>
-                      <td>Total Judgement</td>
-                      <td id="qty-total">Not counting yet</td>
-                    </tr>
-                    <tr class="text-center">
-                      <th scope="row">2</th>
-                      <td>Sesion Judgement</td>
-                      <td id="qty-sesion">not counting yet</td>
-                    </tr>
-                    <tr id="row-last-detect" class="text-center">
-                      <th scope="row">3</th>
-                      <td>Last detection</td>
-                      <td id="last_detect">Null</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div class="container justify-content-center my-3">
-            <div class="card">
-              <div class="card-body row">
-                <button type="button" id="start-scan" class="btn btn-success" 
-                  data-bs-toggle="tooltip" data-bs-placement="top" title="Start scanning for AI detection and save last detection to memory"
-                  onclick="startScan()">
-                  Start Scanning</button>
-              </div>
-            </div>
+        </div>
+        <!-- baris bawah untuk tampilan detail dari last detections -->    
+     </div>
+     <div class="col-2">
+      <div class="container justify-content-center my-3">
+        <div class="card">
+          <div class="card-body">
+            <table class="table table-striped ">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="text-center">No</th>
+                  <th scope="col" class="text-center">Parameter Name</th>
+                  <th scope="col" class="text-center">Parameter Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="text-center">
+                  <th scope="row">1</th>
+                  <td>Total Judgement</td>
+                  <td id="qty-total">Not counting yet</td>
+                </tr>
+                <tr class="text-center">
+                  <th scope="row">2</th>
+                  <td>Sesion Judgement</td>
+                  <td id="qty-sesion">not counting yet</td>
+                </tr>
+                <tr id="row-last-detect" class="text-center">
+                  <th scope="row">3</th>
+                  <td>Last detection</td>
+                  <td id="last_detect">Null</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-        <!-- baris bawah untuk tampilan detail dari last detections -->
       </div>
-     </div>
+      <div class="container justify-content-center my-3">
+        <div class="card">
+          <div class="card-body row">
+            <button type="button" id="start-scan" class="btn btn-success" 
+              data-bs-toggle="tooltip" data-bs-placement="top" title="Start scanning for AI detection and save last detection to memory"
+              onclick="startScan()">
+              Start Scanning</button>
+          </div>
+        </div>
+      </div>
+    </div>  
   </div>
+</div>
+  
   <!-- own script -->
   <script>
     let alert_popup = false
