@@ -98,6 +98,7 @@
         let inputTriggers = false // digunakan di funcion save images
         let saveFlag = true // digunakan di funcion save images
         let collectImageFlag = false //digunakan di function collect data
+        let LS_status = false
         async function getData() {
             try {
                 console.log('Meminta data dari server')
@@ -125,9 +126,15 @@
                   document.getElementById('dsp-start-trg').classList.add('bg-danger')
                   inputTriggers = false;
                 }
-
+                
+                //ubah status ls
+                if (data['LS_reset'] == true){
+                  LS_status = true
+                }else{
+                  LS_status = false
+                }
                 //ubah baris reset triggers
-                if (data['trigger_reset'] == true){
+                if (data['LS_reset'] == true){
                   document.getElementById('dsp-rst-trg').classList.remove('bg-danger')
                   document.getElementById('dsp-rst-trg').classList.add('bg-success')
                   document.getElementById('dsp-rst-trg').textContent = 'Active'
@@ -182,7 +189,7 @@
         async function saveImages(){
             try{
                 imageName = document.getElementById('sample-name').value;
-                if (saveFlag == true && inputTriggers == true) {
+                if (saveFlag == true && resetTrigger != true) {
                   console.log('Saving images')
                   let response = await fetch(`http://127.0.0.1:5000/collect/save-sample?name=${imageName}`, {
                     method: 'GET' // atau 'POST' jika server mengharapkan request POST
@@ -198,10 +205,11 @@
                   // ubah alamat dan text qty gambar
                   changeHref(data.img_path, data.count_file)
                   saveFlag = false
-
-                }else if( saveFlag == false && resetTrigger == true){
+                  image_saved = true
+                }else if( saveFlag == false && resetTrigger != false){
                   console.log('Reset save flag')
                   saveFlag = true
+
                 }
             }catch (error) {
                 console.error('Terjadi kesalahan:', error);
